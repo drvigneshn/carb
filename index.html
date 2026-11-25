@@ -381,7 +381,7 @@ footer b{color:var(--ink2)}
   <b id="dbCount"></b><br>
   Carbohydrate figures are typical household-portion averages for Indian preparations and vary with recipe, oil and portion size. Weigh or measure where accuracy matters.<br><br>
   Review all ratios with the treating diabetes team. This page stores nothing outside your own browser.<br><br>
-  Carb Companion · v1.1.0 (beta, work in progress) · part of the <a href="https://pediaos.com" style="color:inherit">PediaOS</a> Companion series · created by Dr Vignesh N
+  Carb Companion · v1.2.0 (beta, work in progress) · part of the <a href="https://pediaos.com" style="color:inherit">PediaOS</a> Companion series · created by Dr Vignesh N
 </footer>
 </div>
 
@@ -739,6 +739,23 @@ const DEF={name:"",wt:"",units:"mgdl",dev:"0.5",
 let S=Object.assign({},DEF), sel=[], meal='b', arrow=0, LOG=[], cat='All';
 
 const MEALS={b:"Breakfast",l:"Lunch",s:"Snack",d:"Dinner"};
+
+/* ---- meal-aware ordering: the food list and category chips re-sort so the
+   foods most typical for the chosen meal come first. Category weight + keyword boost. */
+const MEALCAT={
+ b:{Tiffin:6,Drinks:4,Roti:3,Fruit:3,Protein:2,Packaged:2,Infant:2,Dal:1,Veg:1,Street:1,Rice:0,Sweets:0},
+ l:{Rice:6,Roti:5,Dal:5,Veg:5,Protein:4,Fruit:2,Drinks:2,Sweets:2,Infant:2,Tiffin:1,Street:1,Packaged:0},
+ s:{Street:6,Packaged:5,Fruit:4,Drinks:4,Sweets:4,Tiffin:2,Infant:2,Protein:1,Roti:1,Rice:0,Dal:0,Veg:0},
+ d:{Roti:6,Rice:5,Dal:5,Veg:5,Protein:4,Tiffin:3,Sweets:1,Fruit:1,Drinks:1,Infant:2,Street:0,Packaged:0}};
+const MEALKW={
+ b:[[/idli|dosa|upma|poha|pongal|uttapam|appam|idiyappam|puttu|paratha|bread|toast|oats|cornflakes|muesli|porridge|dalia|ragi|milk|tea|coffee|egg|omelette|sambar|chutney|thepla|cheela|chilla/,4],[/biryani|pulao|fried rice|naan|kulcha|bhatura|pizza|burger/,-4]],
+ l:[[/rice|biryani|pulao|sambar|rasam|curry|dal|sabzi|chapati|roti|phulka|kootu|poriyal|avial|thoran|curd|raita|khichdi|rajma|chole|meals|thali/,3],[/tea|coffee|biscuit|cornflakes/,-3]],
+ s:[[/samosa|bonda|bajji|pakora|bhaji|vada|biscuit|cookie|bhel|pani|puri|chaat|chips|cake|murukku|mixture|sundal|banana|apple|juice|tea|coffee|milk|sandwich|puff|kachori|dhokla|khakhra|makhana|peanut|chikki|ladoo|sweet corn|popcorn|nuts/,3],[/rice|biryani|meals|thali/,-3]],
+ d:[[/chapati|roti|phulka|paratha|dosa|idli|idiyappam|appam|dal|sabzi|curry|khichdi|rice|rasam|sambar|curd|raita|soup/,3],[/tea|coffee|biscuit|cornflakes|cake/,-3]]};
+const mealScore=f=>{let v=(MEALCAT[meal][f.c]??0)*10; const n=f.n.toLowerCase();
+  for(const [re,w] of MEALKW[meal]) if(re.test(n)) v+=w*10;
+  if(/\braw\b/.test(n)) v-=50; return v;};
+const mealNow=()=>{const h=new Date().getHours(); return h>=5&&h<11?'b':h>=11&&h<16?'l':h>=16&&h<19?'s':'d';};
 const ARROWS=[{s:"↓↓",v:-2},{s:"↓",v:-1},{s:"→",v:0},{s:"↑",v:1},{s:"↑↑",v:2}];
 
 /* category colours for the proportional carbohydrate bar */
@@ -823,8 +840,8 @@ function showTab(t){
 function initUI(){
   mealBtns.innerHTML=Object.keys(MEALS).map(k=>
     `<button class="${k===meal?'on':''}" onclick="setMeal('${k}')">${MEALS[k]}</button>`).join('');
-  icrHint.textContent=`Ratio in use: 1 unit per ${S.icr[meal]} g carbohydrate`;
-  const cats=['All',...new Set(FOODS.map(f=>f.c))];
+  icrHint.textContent=`Ratio in use: 1 unit per ${S.icr[meal]} g carbohydrate · food list sorted for ${MEALS[meal].toLowerCase()}`;
+  const cats=['All',...[...new Set(FOODS.map(f=>f.c))].sort((a,b)=>(MEALCAT[meal][b]??0)-(MEALCAT[meal][a]??0))];
   document.getElementById('cats').innerHTML=cats.map(c=>
     `<button class="${c===cat?'on':''}" onclick="setCat('${c}')">${c}</button>`).join('');
   arrows.innerHTML=ARROWS.map(a=>
@@ -834,12 +851,13 @@ function initUI(){
   dbCount.textContent=FOODS.length+' Indian foods in the database';
   updIOB();
 }
-function setMeal(k){meal=k;initUI();}
+function setMeal(k){meal=k;initUI();render();res.scrollTop=0;}
 function setCat(c){cat=c;initUI();render();}
 
 function render(){
   const q=(document.getElementById('q').value||'').toLowerCase().trim();
-  const all=FOODS.filter(f=>(cat==='All'||f.c===cat)&&(!q||f.n.toLowerCase().includes(q)));
+  const all=FOODS.filter(f=>(cat==='All'||f.c===cat)&&(!q||f.n.toLowerCase().includes(q)))
+    .map((f,k)=>({f,k,v:mealScore(f)})).sort((a,b)=>b.v-a.v||a.k-b.k).map(o=>o.f);
   const list=all.slice(0,60);
   res.innerHTML=list.length?list.map(f=>{
     const i=FOODS.indexOf(f);
@@ -1118,7 +1136,7 @@ function applyRule(){
 }
 
 /* ========================== BOOT ========================== */
-load(); initUI(); render(); fillSettings(); showTab('calc');
+load(); meal=mealNow(); initUI(); render(); fillSettings(); showTab('calc');
 </script>
 <script>if('serviceWorker' in navigator){addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));}</script>
 </body>

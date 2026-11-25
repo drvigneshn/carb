@@ -1,5 +1,5 @@
 // Bump this on every change so installed users get the update.
-const CACHE = 'carb-v1.1.0';
+const CACHE = 'carb-v1.2.0';
 const ASSETS = ['./', 'index.html', 'manifest.webmanifest', 'icon.svg'];
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(ASSETS)).then(() => self.skipWaiting()));

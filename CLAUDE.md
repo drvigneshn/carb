@@ -14,7 +14,7 @@ Single page, no build step — plain HTML/CSS/JS in `index.html`. Decision suppo
 - `sw.js` — offline cache. `manifest.webmanifest` + `icon.svg` — PWA install.
 
 ## Versioning (every change)
-Bump in both places (current v1.1.0, beta) and keep in sync: footer line in `index.html` (`Carb Companion · vX.Y.Z`)
+Bump in both places (current v1.2.0, beta) and keep in sync: footer line in `index.html` (`Carb Companion · vX.Y.Z`)
 and `sw.js` `const CACHE = 'carb-vX.Y.Z';` (this pushes updates to installed users).
 `sw.js` must only delete its own `carb-` caches. Small change → patch, new feature → minor.
 
