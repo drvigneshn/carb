@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Carb Companion — Indian Food Carb Counter &amp; Insulin Dose Calculator | Type 1 Diabetes</title>
 <meta name="description" content="Carbohydrate counting for Indian foods with insulin bolus calculation for type 1 diabetes. Over 300 Indian dishes in household measures, insulin-to-carb ratio, correction dose, insulin on board and safety limits. Decision support only.">
-<meta name="theme-color" content="#0f7b8a">
+<meta name="theme-color" content="#0a6b5a">
 <meta name="robots" content="index,follow">
 <meta property="og:title" content="Carb Companion — Indian Food Carb Counter &amp; Insulin Dose Calculator">
 <meta property="og:url" content="https://carb.pediaos.com/">
@@ -17,11 +17,14 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="Carb Companion">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230f7b8a'/%3E%3Cpath d='M18 44V20h7l10 16V20h7v24h-7L25 28v16z' fill='%23fff'/%3E%3C/svg%3E">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230a6b5a'/%3E%3Ctext x='32' y='43' font-family='Arial' font-size='28' font-weight='700' fill='%23fff' text-anchor='middle'%3ECC%3C/text%3E%3C/svg%3E">
 <style>
 :root{
-  --bg:#f1f5f8; --card:#fff; --ink:#0d1b26; --ink2:#1e3240; --muted:#64798a; --line:#e3eaf1;
-  --brand:#0f7b8a; --brand-d:#09505b; --brand-l:#e4f3f5; --brand-l2:#f2fafb;
+  --bg:#f3f6f4; --card:#fff; --ink:#10211c; --ink2:#1f3a33; --muted:#5f7570; --line:#e0e9e5;
+  --brand:#0a7a62; --brand-d:#06503f; --brand-l:#def3ec; --brand-l2:#f2faf7;
+  --acc:#e07a10; --acc-l:#fff1de; --acc-d:#9a4f00;
+  --hdr:linear-gradient(135deg,#0b8a6c 0%,#08705f 45%,#0b4f63 100%);
+  --dose:linear-gradient(145deg,#1c3f72 0%,#0f2547 100%);
   --warn:#9a5b06; --warn-bg:#fff8e6; --warn-bd:#fde68a;
   --danger:#a91c1c; --danger-bg:#fff1f1; --danger-bd:#fbbdbd;
   --ok:#136b36; --ok-bg:#eefbf2; --ok-bd:#a7e8c0;
@@ -29,8 +32,11 @@
 }
 @media (prefers-color-scheme:dark){
   :root{
-    --bg:#0e1519; --card:#151f26; --ink:#e8f0f4; --ink2:#cfdde5; --muted:#8aa1b0; --line:#24323c;
-    --brand:#2aa0b0; --brand-d:#7fd4df; --brand-l:#163034; --brand-l2:#132a2e;
+    --bg:#0c1513; --card:#13201d; --ink:#e6f2ee; --ink2:#cde0da; --muted:#8ea69f; --line:#22342f;
+    --brand:#2fb592; --brand-d:#86e3c8; --brand-l:#123129; --brand-l2:#102a24;
+    --acc:#f5a54a; --acc-l:#2c2012; --acc-d:#f8c27f;
+    --hdr:linear-gradient(135deg,#0a5e4b 0%,#084a45 50%,#0a3446 100%);
+    --dose:linear-gradient(145deg,#1a355e 0%,#0c1d38 100%);
     --warn:#f5c572; --warn-bg:#2b2213; --warn-bd:#5c4a1e;
     --danger:#ff9d9d; --danger-bg:#2e1718; --danger-bd:#6b2a2c;
     --ok:#7fe0a5; --ok-bg:#13291d; --ok-bd:#2c5c3c;
@@ -46,12 +52,17 @@ body{margin:0;background:var(--bg);color:var(--ink);
 body.hasbar .wrap{padding-bottom:calc(166px + env(safe-area-inset-bottom))}
 
 /* ---------- header ---------- */
-header{background:linear-gradient(145deg,var(--brand) 0%,var(--brand-d) 100%);color:#fff;
+header{background:var(--hdr);color:#fff;border-bottom:3px solid var(--acc);
   padding:calc(14px + env(safe-area-inset-top)) 14px 14px}
 header .inner{max-width:760px;margin:0 auto}
 header .top{display:flex;align-items:flex-start;gap:12px}
 header h1{font-size:18px;margin:0;font-weight:680;letter-spacing:-.35px;flex:1;line-height:1.3}
 header .sub{font-size:12.5px;opacity:.88;margin-top:3px}
+header .by{font-size:11.5px;opacity:.8;margin-top:2px;font-weight:550}
+.beta{display:inline-block;vertical-align:3px;margin-left:7px;background:var(--acc);color:#fff;font-size:10.5px;
+  font-weight:800;letter-spacing:.8px;padding:2px 7px;border-radius:999px;text-transform:uppercase}
+.wip{background:var(--acc-l);color:var(--acc-d);font-size:12px;padding:8px 14px;text-align:center;
+  border-bottom:1px solid var(--line);line-height:1.45;font-weight:600}
 .modeToggle{display:flex;background:rgba(255,255,255,.16);border-radius:9px;padding:3px;flex-shrink:0}
 .modeToggle button{background:none;border:0;color:#fff;padding:6px 12px;border-radius:7px;
   font-size:12.5px;cursor:pointer;font-weight:620;font-family:inherit;transition:.15s}
@@ -73,7 +84,7 @@ nav.tabs button.on{color:var(--brand);border-bottom-color:var(--brand)}
 .card h2{font-size:11.5px;text-transform:uppercase;letter-spacing:.9px;color:var(--muted);
   margin:0 0 12px;font-weight:700;display:flex;align-items:center;gap:7px}
 .card h2 i{display:inline-flex;align-items:center;justify-content:center;width:19px;height:19px;
-  border-radius:50%;background:var(--brand-l);color:var(--brand);font-style:normal;font-size:11px;font-weight:800}
+  border-radius:50%;background:var(--acc);color:#fff;font-style:normal;font-size:11px;font-weight:800}
 
 label{display:block;font-size:12px;color:var(--muted);font-weight:650;margin-bottom:5px;letter-spacing:.1px}
 input,select{width:100%;padding:11px 12px;border:1px solid var(--line);border-radius:10px;font-size:15.5px;
@@ -134,7 +145,7 @@ input:disabled,select:disabled{opacity:.6}
 .selrow .cb{width:54px;text-align:right;font-weight:700;font-size:13.5px;flex-shrink:0}
 .selrow .rm{border:0;background:none;color:var(--danger);font-size:19px;cursor:pointer;padding:0 2px;line-height:1;flex-shrink:0}
 
-.total{display:flex;align-items:center;justify-content:space-between;background:var(--brand-l);
+.total{display:flex;align-items:center;justify-content:space-between;background:var(--brand-l);border-left:5px solid var(--acc);
   border-radius:12px;padding:14px 16px;margin-top:14px}
 .total .lbl{font-size:13px;font-weight:650;color:var(--brand-d)}
 .total .val{font-size:32px;font-weight:760;color:var(--brand-d);letter-spacing:-1.3px;line-height:1}
@@ -157,7 +168,7 @@ input:disabled,select:disabled{opacity:.6}
 .iobbar b{font-size:16.5px;font-weight:720}
 
 /* ---------- dose result ---------- */
-.dose{background:linear-gradient(145deg,var(--ink2) 0%,var(--ink) 100%);color:#fff;border-radius:var(--r);
+.dose{background:var(--dose);color:#fff;border-radius:var(--r);
   padding:18px;margin-top:14px;box-shadow:var(--sh)}
 .dose .cap{font-size:11.5px;opacity:.7;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;font-weight:650}
 .dose .big{font-size:52px;font-weight:770;letter-spacing:-2.5px;line-height:1}
@@ -217,7 +228,8 @@ footer b{color:var(--ink2)}
 <header><div class="inner">
   <div class="top">
     <div style="flex:1">
-      <h1>Carb Companion</h1>
+      <h1>Carb Companion<span class="beta">Beta</span></h1>
+      <div class="by">Created by Dr Vignesh N</div>
       <div class="sub" id="ptLine">Carb counter &amp; insulin dose calculator · Type 1 diabetes · Indian food database</div>
     </div>
     <div class="modeToggle">
@@ -227,6 +239,7 @@ footer b{color:var(--ink2)}
   </div>
 </div></header>
 
+<div class="wip">🚧 Still under development — this is not the finalised product. Features and food values may change.</div>
 <div class="disclaimer">Decision-support tool only — not a medical device. Ratios must be set by your diabetes team, and every dose verified before injecting.</div>
 
 <nav class="tabs"><div class="in">
@@ -368,7 +381,7 @@ footer b{color:var(--ink2)}
   <b id="dbCount"></b><br>
   Carbohydrate figures are typical household-portion averages for Indian preparations and vary with recipe, oil and portion size. Weigh or measure where accuracy matters.<br><br>
   Review all ratios with the treating diabetes team. This page stores nothing outside your own browser.<br><br>
-  Carb Companion · v1.0.0 · part of the <a href="https://pediaos.com" style="color:inherit">PediaOS</a> Companion series · created by Dr Vignesh N
+  Carb Companion · v1.1.0 (beta, work in progress) · part of the <a href="https://pediaos.com" style="color:inherit">PediaOS</a> Companion series · created by Dr Vignesh N
 </footer>
 </div>
 
@@ -729,7 +742,7 @@ const MEALS={b:"Breakfast",l:"Lunch",s:"Snack",d:"Dinner"};
 const ARROWS=[{s:"↓↓",v:-2},{s:"↓",v:-1},{s:"→",v:0},{s:"↑",v:1},{s:"↑↑",v:2}];
 
 /* category colours for the proportional carbohydrate bar */
-const CATCOL={Rice:"#0f7b8a",Roti:"#c2772b",Tiffin:"#7a5bbd",Dal:"#2f8f4e",Veg:"#5a9e2f",
+const CATCOL={Rice:"#0a7a62",Roti:"#c2772b",Tiffin:"#7a5bbd",Dal:"#2f8f4e",Veg:"#5a9e2f",
   Protein:"#b5453f",Street:"#d4663d",Packaged:"#7d848e",Drinks:"#2f7fd1",Fruit:"#c94d8a",
   Sweets:"#a3357d",Infant:"#38a8a0",Manual:"#6b7a88"};
 
