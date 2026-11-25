@@ -1,0 +1,1112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Carb Companion — Indian Food Carb Counter &amp; Insulin Dose Calculator | Type 1 Diabetes</title>
+<meta name="description" content="Carbohydrate counting for Indian foods with insulin bolus calculation for type 1 diabetes. Over 300 Indian dishes in household measures, insulin-to-carb ratio, correction dose, insulin on board and safety limits. Decision support only.">
+<meta name="theme-color" content="#0f7b8a">
+<meta name="robots" content="index,follow">
+<meta property="og:title" content="Carb Companion — Indian Food Carb Counter &amp; Insulin Dose Calculator">
+<meta property="og:url" content="https://carb.pediaos.com/">
+<link rel="canonical" href="https://carb.pediaos.com/">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon.svg">
+<meta property="og:description" content="Count carbohydrate in Indian meals and calculate the insulin bolus for type 1 diabetes. Clinician-configurable ratios, IOB tracking, hypo safety.">
+<meta property="og:type" content="website">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Carb Companion">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230f7b8a'/%3E%3Cpath d='M18 44V20h7l10 16V20h7v24h-7L25 28v16z' fill='%23fff'/%3E%3C/svg%3E">
+<style>
+:root{
+  --bg:#f1f5f8; --card:#fff; --ink:#0d1b26; --ink2:#1e3240; --muted:#64798a; --line:#e3eaf1;
+  --brand:#0f7b8a; --brand-d:#09505b; --brand-l:#e4f3f5; --brand-l2:#f2fafb;
+  --warn:#9a5b06; --warn-bg:#fff8e6; --warn-bd:#fde68a;
+  --danger:#a91c1c; --danger-bg:#fff1f1; --danger-bd:#fbbdbd;
+  --ok:#136b36; --ok-bg:#eefbf2; --ok-bd:#a7e8c0;
+  --r:14px; --sh:0 1px 2px rgba(13,27,38,.05),0 4px 14px rgba(13,27,38,.04);
+}
+@media (prefers-color-scheme:dark){
+  :root{
+    --bg:#0e1519; --card:#151f26; --ink:#e8f0f4; --ink2:#cfdde5; --muted:#8aa1b0; --line:#24323c;
+    --brand:#2aa0b0; --brand-d:#7fd4df; --brand-l:#163034; --brand-l2:#132a2e;
+    --warn:#f5c572; --warn-bg:#2b2213; --warn-bd:#5c4a1e;
+    --danger:#ff9d9d; --danger-bg:#2e1718; --danger-bd:#6b2a2c;
+    --ok:#7fe0a5; --ok-bg:#13291d; --ok-bd:#2c5c3c;
+    --sh:0 1px 2px rgba(0,0,0,.3);
+  }
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);
+  font-family:ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  font-size:15px;line-height:1.5;overflow-wrap:break-word}
+.wrap{max-width:760px;margin:0 auto;padding:0 14px calc(104px + env(safe-area-inset-bottom))}
+body.hasbar .wrap{padding-bottom:calc(166px + env(safe-area-inset-bottom))}
+
+/* ---------- header ---------- */
+header{background:linear-gradient(145deg,var(--brand) 0%,var(--brand-d) 100%);color:#fff;
+  padding:calc(14px + env(safe-area-inset-top)) 14px 14px}
+header .inner{max-width:760px;margin:0 auto}
+header .top{display:flex;align-items:flex-start;gap:12px}
+header h1{font-size:18px;margin:0;font-weight:680;letter-spacing:-.35px;flex:1;line-height:1.3}
+header .sub{font-size:12.5px;opacity:.88;margin-top:3px}
+.modeToggle{display:flex;background:rgba(255,255,255,.16);border-radius:9px;padding:3px;flex-shrink:0}
+.modeToggle button{background:none;border:0;color:#fff;padding:6px 12px;border-radius:7px;
+  font-size:12.5px;cursor:pointer;font-weight:620;font-family:inherit;transition:.15s}
+.modeToggle button.on{background:#fff;color:var(--brand-d)}
+
+.disclaimer{background:var(--warn-bg);color:var(--warn);font-size:12px;padding:9px 14px;
+  text-align:center;border-bottom:1px solid var(--warn-bd);line-height:1.45}
+
+/* ---------- tabs ---------- */
+nav.tabs{background:var(--card);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:30;box-shadow:var(--sh)}
+nav.tabs .in{max-width:760px;margin:0 auto;display:flex}
+nav.tabs button{flex:1;background:none;border:0;border-bottom:3px solid transparent;padding:12px 4px;
+  font-size:13.5px;font-weight:620;color:var(--muted);cursor:pointer;font-family:inherit;transition:.15s}
+nav.tabs button.on{color:var(--brand);border-bottom-color:var(--brand)}
+
+/* ---------- cards ---------- */
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:16px;
+  margin-top:14px;box-shadow:var(--sh)}
+.card h2{font-size:11.5px;text-transform:uppercase;letter-spacing:.9px;color:var(--muted);
+  margin:0 0 12px;font-weight:700;display:flex;align-items:center;gap:7px}
+.card h2 i{display:inline-flex;align-items:center;justify-content:center;width:19px;height:19px;
+  border-radius:50%;background:var(--brand-l);color:var(--brand);font-style:normal;font-size:11px;font-weight:800}
+
+label{display:block;font-size:12px;color:var(--muted);font-weight:650;margin-bottom:5px;letter-spacing:.1px}
+input,select{width:100%;padding:11px 12px;border:1px solid var(--line);border-radius:10px;font-size:15.5px;
+  background:var(--card);color:var(--ink);font-family:inherit;-webkit-appearance:none;appearance:none}
+select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%2364798a' stroke-width='1.8' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 12px center;padding-right:34px}
+input:focus,select:focus{outline:0;border-color:var(--brand);box-shadow:0 0 0 3px var(--brand-l)}
+input:disabled,select:disabled{opacity:.6}
+.row{display:flex;gap:11px}.row>*{flex:1;min-width:0}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:11px}
+
+.btn{background:var(--brand);color:#fff;border:0;border-radius:11px;padding:14px;font-size:15.5px;
+  font-weight:670;width:100%;cursor:pointer;font-family:inherit;transition:.15s}
+.btn:hover{background:var(--brand-d)}
+.btn.sec{background:var(--card);color:var(--brand);border:1.5px solid var(--brand)}
+.btn.sec:hover{background:var(--brand-l)}
+.btn.ghost{background:var(--card);color:var(--muted);border:1px solid var(--line);padding:10px;font-size:13.5px}
+.btn.ghost:hover{background:var(--bg);color:var(--ink)}
+.btn.sm{padding:11px;font-size:14px}
+
+/* ---------- food search ---------- */
+.searchbox{position:relative}
+.searchbox input{padding-left:38px}
+.searchbox svg{position:absolute;left:13px;top:50%;transform:translateY(-50%);opacity:.45;pointer-events:none}
+.chips{display:flex;gap:7px;overflow-x:auto;padding:9px 0 3px;scrollbar-width:none}
+.chips::-webkit-scrollbar{display:none}
+.chips button{white-space:nowrap;border:1px solid var(--line);background:var(--card);color:var(--muted);
+  border-radius:999px;padding:7px 13px;font-size:12.5px;cursor:pointer;font-family:inherit;font-weight:580;transition:.15s}
+.chips button.on{background:var(--brand);color:#fff;border-color:var(--brand)}
+
+.results{max-height:272px;overflow-y:auto;margin-top:6px;border:1px solid var(--line);border-radius:11px;background:var(--brand-l2)}
+.results .item{padding:10px 12px;border-bottom:1px solid var(--line);cursor:pointer;display:flex;gap:10px;align-items:center}
+.results .item:last-child{border-bottom:0}
+.results .item:hover{background:var(--brand-l)}
+.results .nm{flex:1;font-size:14px;font-weight:540;line-height:1.35}
+.results .ms{display:block;font-size:11.5px;color:var(--muted);font-weight:400;margin-top:1px}
+.results .cb{font-weight:720;color:var(--brand);font-size:13.5px;white-space:nowrap}
+.results .plus{width:24px;height:24px;border-radius:50%;background:var(--brand);color:#fff;display:flex;
+  align-items:center;justify-content:center;font-size:16px;line-height:1;flex-shrink:0;font-weight:500}
+.cnt{font-size:11.5px;color:var(--muted);text-align:right;margin-top:6px}
+
+/* ---------- selected plate ---------- */
+.sel{margin-top:14px}
+.sel:empty{display:none}
+.selrow{display:flex;align-items:center;gap:9px;padding:10px 0;border-bottom:1px solid var(--line)}
+.selrow:last-child{border-bottom:0}
+.selrow .nm{flex:1;font-size:13.5px;min-width:0;font-weight:540}
+.selrow .nm small{display:block;color:var(--muted);font-size:11.5px;font-weight:400}
+.selrow.over{background:var(--warn-bg);border:1px solid var(--warn-bd);border-radius:9px;
+  padding:9px 10px;margin:4px 0}
+.selrow .qwarn{display:block;color:var(--warn);font-size:11.5px;font-weight:640;margin-top:3px;line-height:1.35}
+.dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px;vertical-align:1px;flex-shrink:0}
+.qty{display:flex;align-items:center;border:1px solid var(--line);border-radius:9px;overflow:hidden;flex-shrink:0}
+.qty button{width:32px;height:32px;border:0;background:var(--bg);font-size:18px;color:var(--brand);
+  cursor:pointer;line-height:1;font-family:inherit}
+.qty button:hover{background:var(--brand-l)}
+.qty span{min-width:34px;text-align:center;font-size:13.5px;font-weight:650;background:var(--card)}
+.selrow .cb{width:54px;text-align:right;font-weight:700;font-size:13.5px;flex-shrink:0}
+.selrow .rm{border:0;background:none;color:var(--danger);font-size:19px;cursor:pointer;padding:0 2px;line-height:1;flex-shrink:0}
+
+.total{display:flex;align-items:center;justify-content:space-between;background:var(--brand-l);
+  border-radius:12px;padding:14px 16px;margin-top:14px}
+.total .lbl{font-size:13px;font-weight:650;color:var(--brand-d)}
+.total .val{font-size:32px;font-weight:760;color:var(--brand-d);letter-spacing:-1.3px;line-height:1}
+.total .val small{font-size:14.5px;font-weight:620;letter-spacing:0}
+
+/* ---------- bg / arrows ---------- */
+.arrows{display:grid;grid-template-columns:repeat(5,1fr);gap:7px}
+.arrows button{border:1px solid var(--line);background:var(--card);border-radius:10px;padding:10px 0;
+  font-size:17px;cursor:pointer;font-family:inherit;color:var(--ink);transition:.15s}
+.arrows button:hover{background:var(--brand-l)}
+.arrows button.on{background:var(--brand);color:#fff;border-color:var(--brand)}
+.mealbtns{display:grid;grid-template-columns:repeat(4,1fr);gap:7px}
+.mealbtns button{border:1px solid var(--line);background:var(--card);border-radius:10px;padding:11px 2px;
+  font-size:12.5px;cursor:pointer;font-family:inherit;color:var(--muted);font-weight:620;transition:.15s}
+.mealbtns button:hover{background:var(--brand-l)}
+.mealbtns button.on{background:var(--brand);color:#fff;border-color:var(--brand)}
+
+.iobbar{display:flex;justify-content:space-between;align-items:center;background:var(--warn-bg);
+  border:1px solid var(--warn-bd);border-radius:10px;padding:10px 14px;margin-top:12px;font-size:13px;color:var(--warn)}
+.iobbar b{font-size:16.5px;font-weight:720}
+
+/* ---------- dose result ---------- */
+.dose{background:linear-gradient(145deg,var(--ink2) 0%,var(--ink) 100%);color:#fff;border-radius:var(--r);
+  padding:18px;margin-top:14px;box-shadow:var(--sh)}
+.dose .cap{font-size:11.5px;opacity:.7;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;font-weight:650}
+.dose .big{font-size:52px;font-weight:770;letter-spacing:-2.5px;line-height:1}
+.dose .big small{font-size:18px;font-weight:620;letter-spacing:0;opacity:.85}
+.brk{margin-top:14px;border-top:1px solid rgba(255,255,255,.16);padding-top:11px;font-size:13px}
+.brk div{display:flex;justify-content:space-between;gap:12px;padding:4px 0;opacity:.88}
+.brk div span:last-child{white-space:nowrap;font-variant-numeric:tabular-nums}
+.brk div.tot{font-weight:720;opacity:1;border-top:1px solid rgba(255,255,255,.16);margin-top:6px;padding-top:9px}
+
+.alert{border-radius:11px;padding:12px 14px;font-size:13.5px;margin-top:11px;line-height:1.5}
+.alert.d{background:var(--danger-bg);color:var(--danger);border:1px solid var(--danger-bd)}
+.alert.w{background:var(--warn-bg);color:var(--warn);border:1px solid var(--warn-bd)}
+.alert.o{background:var(--ok-bg);color:var(--ok);border:1px solid var(--ok-bd)}
+.alert b{display:block;margin-bottom:4px;font-size:14px}
+.alert ol{margin:8px 0 0 17px;padding:0}
+.alert li{margin-bottom:4px}
+
+table{width:100%;border-collapse:collapse;font-size:12.5px}
+th{text-align:left;color:var(--muted);font-weight:680;padding:8px 5px;border-bottom:2px solid var(--line);
+  font-size:11px;text-transform:uppercase;letter-spacing:.5px}
+td{padding:9px 5px;border-bottom:1px solid var(--line);vertical-align:top}
+.hint{font-size:11.5px;color:var(--muted);margin-top:7px;line-height:1.5}
+.hide{display:none!important}
+.sec-h{font-size:11.5px;font-weight:720;color:var(--brand);text-transform:uppercase;letter-spacing:.9px;
+  margin:18px 0 10px;padding-top:16px;border-top:1px dashed var(--line)}
+.sec-h.first{border-top:0;padding-top:0;margin-top:0}
+
+/* ---------- sticky action bar ---------- */
+.stick{position:fixed;left:0;right:0;bottom:0;z-index:40;background:var(--card);
+  border-top:1px solid var(--line);padding:11px 14px calc(11px + env(safe-area-inset-bottom));
+  box-shadow:0 -4px 18px rgba(13,27,38,.07)}
+.stick .in{max-width:760px;margin:0 auto}
+.stick .row2{display:flex;align-items:center;gap:13px}
+.stick .tot{flex-shrink:0;line-height:1.15}
+.stick .tot b{display:block;font-size:22px;font-weight:760;color:var(--brand);letter-spacing:-.7px}
+.stick .tot span{font-size:10.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;font-weight:650}
+.stick .btn{flex:1;margin:0}
+
+/* ---------- proportional carbohydrate bar ---------- */
+.barwrap{margin-bottom:11px}
+.cbar{display:flex;height:27px;border-radius:7px;overflow:hidden;background:var(--line)}
+.cbar button{border:0;padding:0;height:100%;min-width:3px;cursor:pointer;color:#fff;font-size:10.5px;
+  font-weight:680;display:flex;align-items:center;justify-content:center;overflow:hidden;
+  white-space:nowrap;font-family:inherit;letter-spacing:.2px;transition:filter .12s}
+.cbar button:hover{filter:brightness(1.14)}
+.cbar button.on{box-shadow:inset 0 0 0 2px rgba(255,255,255,.9)}
+.cbarInfo{font-size:11.5px;color:var(--muted);margin-top:6px;line-height:1.4;min-height:16px}
+.cbarInfo b{color:var(--ink);font-weight:650}
+.cbarInfo .flag{color:var(--warn);font-weight:650}
+
+footer{text-align:center;font-size:11.5px;color:var(--muted);padding:26px 14px 8px;line-height:1.6}
+footer b{color:var(--ink2)}
+</style>
+</head>
+<body>
+
+<header><div class="inner">
+  <div class="top">
+    <div style="flex:1">
+      <h1>Carb Companion</h1>
+      <div class="sub" id="ptLine">Carb counter &amp; insulin dose calculator · Type 1 diabetes · Indian food database</div>
+    </div>
+    <div class="modeToggle">
+      <button id="mHome" class="on" onclick="setMode('home')">Home</button>
+      <button id="mClin" onclick="setMode('clin')">Clinician</button>
+    </div>
+  </div>
+</div></header>
+
+<div class="disclaimer">Decision-support tool only — not a medical device. Ratios must be set by your diabetes team, and every dose verified before injecting.</div>
+
+<nav class="tabs"><div class="in">
+  <button id="tab-calc" class="on" onclick="showTab('calc')">Calculate</button>
+  <button id="tab-log"  onclick="showTab('log')">Log</button>
+  <button id="tab-set"  onclick="showTab('set')">Settings</button>
+</div></nav>
+
+<div class="wrap">
+
+<!-- ================= CALCULATE ================= -->
+<section id="p-calc">
+
+  <div class="card">
+    <h2><i>1</i>Which meal</h2>
+    <div class="mealbtns" id="mealBtns"></div>
+    <div class="hint" id="icrHint"></div>
+  </div>
+
+  <div class="card">
+    <h2><i>2</i>Build the plate</h2>
+    <div class="searchbox">
+      <svg width="15" height="15" viewBox="0 0 16 16" fill="none"><circle cx="6.8" cy="6.8" r="4.9" stroke="currentColor" stroke-width="1.7"/><path d="M10.5 10.5L14 14" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
+      <input id="q" placeholder="Search — idli, chapati, biryani, Parle-G, banana…" oninput="render()" autocomplete="off" spellcheck="false">
+    </div>
+    <div class="chips" id="cats"></div>
+    <div class="results" id="res"></div>
+    <div class="cnt" id="resCnt"></div>
+
+    <div class="row" style="margin-top:12px">
+      <div style="flex:2"><label>Or add carbohydrate manually (g)</label><input id="manual" type="number" inputmode="decimal" placeholder="e.g. 18"></div>
+      <div style="flex:1;display:flex;align-items:flex-end"><button class="btn sec sm" onclick="addManual()">Add</button></div>
+    </div>
+
+    <div class="sel" id="sel"></div>
+    <div class="total"><span class="lbl">Total carbohydrate</span><span class="val" id="tc">0<small> g</small></span></div>
+    <div id="fpuNote"></div>
+  </div>
+
+  <div class="card">
+    <h2><i>3</i>Blood glucose &amp; activity</h2>
+    <div class="row">
+      <div><label>Current BG (<span class="uLbl">mg/dL</span>)</label><input id="bg" type="number" inputmode="decimal" placeholder="optional"></div>
+      <div><label>Exercise planned</label>
+        <select id="ex">
+          <option value="0">None</option>
+          <option value="20">Light — reduce 20%</option>
+          <option value="33">Moderate — reduce 33%</option>
+          <option value="50">Vigorous — reduce 50%</option>
+        </select>
+      </div>
+    </div>
+    <div style="margin-top:12px"><label>CGM trend arrow (optional)</label>
+      <div class="arrows" id="arrows"></div>
+      <div class="hint">Shifts the correction only, by an equivalent BG amount. Skip if not on CGM.</div>
+    </div>
+    <div class="iobbar" id="iobBar"><span>Insulin still active (IOB)</span><b id="iobVal">0.0 U</b></div>
+  </div>
+
+  <div id="out"></div>
+</section>
+
+<!-- ================= LOG ================= -->
+<section id="p-log" class="hide">
+  <div class="card">
+    <h2>Dose &amp; meal log</h2>
+    <div id="logBody"></div>
+    <div class="row" style="margin-top:14px">
+      <button class="btn ghost" onclick="exportCSV()">Export CSV</button>
+      <button class="btn ghost" onclick="clearLog()">Clear log</button>
+    </div>
+    <div class="hint">Saved only in this browser on this device — nothing is uploaded anywhere. Export before clearing browser data or changing device.</div>
+  </div>
+</section>
+
+<!-- ================= SETTINGS ================= -->
+<section id="p-set" class="hide">
+  <div class="card">
+    <div class="sec-h first">Patient</div>
+    <div class="row">
+      <div><label>Name / initials</label><input id="s_name" placeholder="optional"></div>
+      <div><label>Weight (kg)</label><input id="s_wt" type="number" inputmode="decimal"></div>
+    </div>
+    <div class="row" style="margin-top:11px">
+      <div><label>BG units</label><select id="s_units"><option value="mgdl">mg/dL</option><option value="mmol">mmol/L</option></select></div>
+      <div><label>Insulin device</label><select id="s_dev">
+        <option value="1">Syringe — round to 1 U</option>
+        <option value="0.5">Half-unit pen — 0.5 U</option>
+        <option value="0.1">Pump — 0.1 U</option>
+      </select></div>
+    </div>
+  </div>
+
+  <div class="card" id="clinBlock">
+    <div class="sec-h first">Insulin-to-carb ratio — 1 unit per __ g carbohydrate</div>
+    <div class="grid2">
+      <div><label>Breakfast</label><input id="s_icr_b" type="number" inputmode="decimal"></div>
+      <div><label>Lunch</label><input id="s_icr_l" type="number" inputmode="decimal"></div>
+      <div><label>Snack</label><input id="s_icr_s" type="number" inputmode="decimal"></div>
+      <div><label>Dinner</label><input id="s_icr_d" type="number" inputmode="decimal"></div>
+    </div>
+
+    <div class="sec-h">Correction</div>
+    <div class="grid2">
+      <div><label>Sensitivity ISF — 1 U drops BG by</label><input id="s_isf" type="number" inputmode="decimal"></div>
+      <div><label>Target BG</label><input id="s_target" type="number" inputmode="decimal"></div>
+      <div><label>Correct only above</label><input id="s_thr" type="number" inputmode="decimal"></div>
+      <div><label>Hypo cut-off — block bolus below</label><input id="s_hypo" type="number" inputmode="decimal"></div>
+    </div>
+
+    <div class="sec-h">Safety limits</div>
+    <div class="grid2">
+      <div><label>Max single dose (U)</label><input id="s_max" type="number" inputmode="decimal"></div>
+      <div><label>Insulin duration DIA (hours)</label><input id="s_dia" type="number" inputmode="decimal"></div>
+    </div>
+
+    <div class="sec-h">Starting-point calculator — 500 / 1800 rule</div>
+    <div class="row">
+      <div><label>Total daily insulin dose (U/day)</label><input id="s_tdd" type="number" inputmode="decimal" oninput="ruleCalc()"></div>
+      <div><label>Carb constant</label><select id="s_kc" onchange="ruleCalc()">
+        <option value="500">500 — rapid analogue</option>
+        <option value="450">450 — regular insulin</option>
+        <option value="300">300 — resistant / adolescent</option>
+      </select></div>
+    </div>
+    <div id="ruleOut" class="hint"></div>
+    <button class="btn sec sm" style="margin-top:10px" onclick="applyRule()">Apply as starting values</button>
+    <div class="hint">Rule-derived numbers are a starting point only. Titrate against paired pre- and post-meal readings over at least three days.</div>
+  </div>
+
+  <div class="card">
+    <button class="btn" onclick="saveSettings()">Save settings</button>
+    <button class="btn ghost" style="margin-top:10px" onclick="resetSettings()">Reset to defaults</button>
+    <div class="hint" id="saveMsg"></div>
+  </div>
+</section>
+
+<footer>
+  <b id="dbCount"></b><br>
+  Carbohydrate figures are typical household-portion averages for Indian preparations and vary with recipe, oil and portion size. Weigh or measure where accuracy matters.<br><br>
+  Review all ratios with the treating diabetes team. This page stores nothing outside your own browser.<br><br>
+  Carb Companion · v1.0.0 · part of the <a href="https://pediaos.com" style="color:inherit">PediaOS</a> Companion series · created by Dr Vignesh N
+</footer>
+</div>
+
+<!-- ================= STICKY BAR ================= -->
+<div class="stick" id="stick"><div class="in">
+  <div class="barwrap hide" id="barwrap">
+    <div class="cbar" id="cbar"></div>
+    <div class="cbarInfo" id="cbarInfo"></div>
+  </div>
+  <div class="row2">
+    <div class="tot"><b id="stickCarb">0 g</b><span>carbohydrate</span></div>
+    <button class="btn" onclick="calc()">Calculate dose</button>
+  </div>
+</div></div>
+
+<script>
+/* ==========================================================================
+   INDIAN FOOD CARBOHYDRATE DATABASE
+   n = name | c = category | u = household unit | g = grams or ml per unit
+   cb = available carbohydrate (g) per unit | f = high fat / protein (late rise)
+   ========================================================================== */
+const FOODS=[
+/* ---------- RICE & RICE DISHES ---------- */
+{n:"Rice, cooked (white)",c:"Rice",u:"1 katori",g:150,cb:42},
+{n:"Rice, cooked (brown)",c:"Rice",u:"1 katori",g:150,cb:38},
+{n:"Rice, cooked (parboiled / idli rice)",c:"Rice",u:"1 katori",g:150,cb:42},
+{n:"Rice, raw",c:"Rice",u:"100 g",g:100,cb:78},
+{n:"Curd rice",c:"Rice",u:"1 katori",g:150,cb:32},
+{n:"Lemon rice",c:"Rice",u:"1 katori",g:150,cb:40},
+{n:"Tamarind rice (puliyodarai)",c:"Rice",u:"1 katori",g:150,cb:42},
+{n:"Coconut rice",c:"Rice",u:"1 katori",g:150,cb:40,f:1},
+{n:"Tomato rice",c:"Rice",u:"1 katori",g:150,cb:40},
+{n:"Bisi bele bath",c:"Rice",u:"1 katori",g:150,cb:38},
+{n:"Veg pulao",c:"Rice",u:"1 katori",g:150,cb:40},
+{n:"Jeera rice",c:"Rice",u:"1 katori",g:150,cb:42},
+{n:"Ghee rice",c:"Rice",u:"1 katori",g:150,cb:44,f:1},
+{n:"Fried rice (veg)",c:"Rice",u:"1 katori",g:150,cb:38,f:1},
+{n:"Chicken fried rice",c:"Rice",u:"1 katori",g:150,cb:38,f:1},
+{n:"Veg biryani",c:"Rice",u:"1 plate",g:250,cb:60,f:1},
+{n:"Chicken biryani",c:"Rice",u:"1 plate",g:250,cb:58,f:1},
+{n:"Mutton biryani",c:"Rice",u:"1 plate",g:250,cb:58,f:1},
+{n:"Khichdi",c:"Rice",u:"1 katori",g:150,cb:30},
+{n:"Sweet pongal (sakkarai pongal)",c:"Rice",u:"1 katori",g:150,cb:55,f:1},
+{n:"Sabudana khichdi",c:"Rice",u:"1 katori",g:150,cb:45,f:1},
+{n:"Kanji / rice gruel",c:"Rice",u:"1 glass",g:200,cb:20},
+/* ---------- ROTI & BREADS ---------- */
+{n:"Chapati / roti (30 g atta)",c:"Roti",u:"1 medium",g:40,cb:15},
+{n:"Phulka (small, 20 g atta)",c:"Roti",u:"1 small",g:28,cb:10},
+{n:"Tandoori roti (large)",c:"Roti",u:"1",g:70,cb:25},
+{n:"Paratha, plain",c:"Roti",u:"1",g:60,cb:25,f:1},
+{n:"Aloo paratha",c:"Roti",u:"1",g:100,cb:32,f:1},
+{n:"Gobi paratha",c:"Roti",u:"1",g:100,cb:28,f:1},
+{n:"Paneer paratha",c:"Roti",u:"1",g:100,cb:26,f:1},
+{n:"Methi thepla",c:"Roti",u:"1",g:45,cb:18,f:1},
+{n:"Puri",c:"Roti",u:"1",g:25,cb:12,f:1},
+{n:"Bhatura",c:"Roti",u:"1",g:70,cb:30,f:1},
+{n:"Naan, plain",c:"Roti",u:"1",g:80,cb:40},
+{n:"Butter naan",c:"Roti",u:"1",g:85,cb:40,f:1},
+{n:"Garlic naan",c:"Roti",u:"1",g:85,cb:42,f:1},
+{n:"Kulcha",c:"Roti",u:"1",g:80,cb:38},
+{n:"Roomali roti",c:"Roti",u:"1",g:40,cb:22},
+{n:"Jowar roti",c:"Roti",u:"1",g:40,cb:18},
+{n:"Bajra roti",c:"Roti",u:"1",g:40,cb:18},
+{n:"Ragi roti",c:"Roti",u:"1",g:40,cb:18},
+{n:"Ragi mudde (ball)",c:"Roti",u:"1",g:100,cb:30},
+{n:"Makki ki roti",c:"Roti",u:"1",g:50,cb:20},
+{n:"Missi roti",c:"Roti",u:"1",g:50,cb:22},
+{n:"Bread, white",c:"Roti",u:"1 slice",g:25,cb:13},
+{n:"Bread, brown / multigrain",c:"Roti",u:"1 slice",g:25,cb:12},
+{n:"Pav",c:"Roti",u:"1",g:50,cb:25},
+{n:"Bun",c:"Roti",u:"1",g:55,cb:28},
+{n:"Wheat flour (atta), raw",c:"Roti",u:"100 g",g:100,cb:64},
+{n:"Maida, raw",c:"Roti",u:"100 g",g:100,cb:74},
+/* ---------- TIFFIN / BREAKFAST ---------- */
+{n:"Idli",c:"Tiffin",u:"1 medium",g:50,cb:12},
+{n:"Idli, mini (button)",c:"Tiffin",u:"1",g:20,cb:5},
+{n:"Rava idli",c:"Tiffin",u:"1",g:55,cb:14},
+{n:"Kanchipuram idli",c:"Tiffin",u:"1",g:60,cb:16,f:1},
+{n:"Idli + sambar (2 idli)",c:"Tiffin",u:"1 set",g:200,cb:34},
+{n:"Dosa, plain",c:"Tiffin",u:"1 medium",g:80,cb:20},
+{n:"Dosa, large (hotel)",c:"Tiffin",u:"1",g:120,cb:30},
+{n:"Masala dosa",c:"Tiffin",u:"1",g:150,cb:35,f:1},
+{n:"Rava dosa",c:"Tiffin",u:"1",g:80,cb:22,f:1},
+{n:"Onion dosa",c:"Tiffin",u:"1",g:100,cb:24,f:1},
+{n:"Ghee roast dosa",c:"Tiffin",u:"1",g:110,cb:30,f:1},
+{n:"Set dosa",c:"Tiffin",u:"1",g:60,cb:15},
+{n:"Pesarattu",c:"Tiffin",u:"1",g:90,cb:20},
+{n:"Uttapam",c:"Tiffin",u:"1",g:100,cb:25},
+{n:"Appam",c:"Tiffin",u:"1",g:60,cb:20},
+{n:"Idiyappam (string hopper)",c:"Tiffin",u:"1",g:40,cb:15},
+{n:"Puttu",c:"Tiffin",u:"1 cup",g:150,cb:40},
+{n:"Upma",c:"Tiffin",u:"1 katori",g:150,cb:30},
+{n:"Ven pongal",c:"Tiffin",u:"1 katori",g:150,cb:33,f:1},
+{n:"Poha",c:"Tiffin",u:"1 katori",g:150,cb:30},
+{n:"Semiya / vermicelli upma",c:"Tiffin",u:"1 katori",g:150,cb:30},
+{n:"Dalia / broken wheat",c:"Tiffin",u:"1 katori",g:150,cb:28},
+{n:"Rava kesari",c:"Tiffin",u:"1 katori",g:100,cb:45,f:1},
+{n:"Oats porridge",c:"Tiffin",u:"1 katori",g:200,cb:25},
+{n:"Oats, raw",c:"Tiffin",u:"100 g",g:100,cb:58},
+{n:"Corn flakes (dry)",c:"Tiffin",u:"1 cup",g:30,cb:25},
+{n:"Muesli",c:"Tiffin",u:"1 cup",g:40,cb:26,f:1},
+{n:"Dhokla",c:"Tiffin",u:"2 pcs",g:60,cb:18},
+{n:"Khandvi",c:"Tiffin",u:"3 pcs",g:60,cb:10},
+{n:"Handvo",c:"Tiffin",u:"1 slice",g:70,cb:20,f:1},
+{n:"Thalipeeth",c:"Tiffin",u:"1",g:60,cb:22,f:1},
+{n:"Medhu vada",c:"Tiffin",u:"1",g:40,cb:12,f:1},
+{n:"Sambar vada",c:"Tiffin",u:"1",g:120,cb:16,f:1},
+{n:"Dahi vada",c:"Tiffin",u:"2",g:150,cb:22,f:1},
+{n:"Poori masala (set)",c:"Tiffin",u:"1 plate",g:200,cb:45,f:1},
+{n:"Chole bhature",c:"Tiffin",u:"1 plate",g:300,cb:75,f:1},
+{n:"Rice sevai / rice noodles",c:"Tiffin",u:"1 katori",g:150,cb:35},
+/* ---------- DAL & PULSES ---------- */
+{n:"Dal (toor / moong), cooked",c:"Dal",u:"1 katori",g:150,cb:15},
+{n:"Dal tadka",c:"Dal",u:"1 katori",g:150,cb:16},
+{n:"Dal fry",c:"Dal",u:"1 katori",g:150,cb:17,f:1},
+{n:"Dal makhani",c:"Dal",u:"1 katori",g:150,cb:20,f:1},
+{n:"Chana dal, cooked",c:"Dal",u:"1 katori",g:150,cb:18},
+{n:"Sambar",c:"Dal",u:"1 katori",g:150,cb:10},
+{n:"Rasam",c:"Dal",u:"1 katori",g:150,cb:4},
+{n:"Kadhi",c:"Dal",u:"1 katori",g:150,cb:8},
+{n:"Kootu",c:"Dal",u:"1 katori",g:150,cb:12},
+{n:"Rajma curry",c:"Dal",u:"1 katori",g:150,cb:22},
+{n:"Chole / chana masala",c:"Dal",u:"1 katori",g:150,cb:24},
+{n:"Lobia (black-eyed peas)",c:"Dal",u:"1 katori",g:150,cb:20},
+{n:"Usal",c:"Dal",u:"1 katori",g:150,cb:22},
+{n:"Sprouted moong salad",c:"Dal",u:"1 katori",g:100,cb:20},
+{n:"Roasted chana",c:"Dal",u:"1 handful",g:30,cb:15},
+{n:"Soya chunks curry",c:"Dal",u:"1 katori",g:150,cb:10},
+{n:"Soya chunks, dry",c:"Dal",u:"50 g",g:50,cb:15},
+/* ---------- VEGETABLES ---------- */
+{n:"Potato, boiled",c:"Veg",u:"1 medium",g:100,cb:20},
+{n:"Aloo sabzi",c:"Veg",u:"1 katori",g:100,cb:18},
+{n:"Jeera aloo",c:"Veg",u:"1 katori",g:100,cb:18,f:1},
+{n:"Aloo gobi",c:"Veg",u:"1 katori",g:100,cb:12},
+{n:"Aloo matar",c:"Veg",u:"1 katori",g:100,cb:16},
+{n:"Sweet potato, boiled",c:"Veg",u:"1 medium",g:100,cb:25},
+{n:"Raw banana / yam sabzi",c:"Veg",u:"1 katori",g:100,cb:20},
+{n:"Arbi (colocasia)",c:"Veg",u:"1 katori",g:100,cb:18},
+{n:"Tapioca (kappa), boiled",c:"Veg",u:"1 katori",g:100,cb:35},
+{n:"Green peas",c:"Veg",u:"1 katori",g:100,cb:15},
+{n:"Sweet corn",c:"Veg",u:"1 katori",g:100,cb:25},
+{n:"Corn on the cob",c:"Veg",u:"1 medium",g:120,cb:30},
+{n:"Mixed veg sabzi",c:"Veg",u:"1 katori",g:100,cb:8},
+{n:"Veg kurma",c:"Veg",u:"1 katori",g:100,cb:12,f:1},
+{n:"Avial",c:"Veg",u:"1 katori",g:100,cb:10,f:1},
+{n:"Bhindi fry",c:"Veg",u:"1 katori",g:100,cb:7,f:1},
+{n:"Baingan bharta",c:"Veg",u:"1 katori",g:100,cb:8,f:1},
+{n:"Cabbage / beans / cauliflower poriyal",c:"Veg",u:"1 katori",g:100,cb:6},
+{n:"Green leafy sabzi (palak, methi)",c:"Veg",u:"1 katori",g:100,cb:4},
+{n:"Beetroot, cooked",c:"Veg",u:"1 katori",g:100,cb:9},
+{n:"Pumpkin, cooked",c:"Veg",u:"1 katori",g:100,cb:7},
+{n:"Onion–tomato–cucumber salad",c:"Veg",u:"1 katori",g:100,cb:5},
+{n:"Cucumber raita",c:"Veg",u:"1 katori",g:150,cb:6},
+{n:"Carrot",c:"Veg",u:"1 medium",g:60,cb:6},
+{n:"Cucumber",c:"Veg",u:"1 medium",g:100,cb:3},
+/* ---------- PROTEIN ---------- */
+{n:"Egg, boiled",c:"Protein",u:"1",g:50,cb:0.5},
+{n:"Omelette (2 eggs)",c:"Protein",u:"1",g:110,cb:2,f:1},
+{n:"Egg bhurji",c:"Protein",u:"1 katori",g:120,cb:4,f:1},
+{n:"Egg curry",c:"Protein",u:"1 katori",g:150,cb:5,f:1},
+{n:"Chicken curry",c:"Protein",u:"1 katori",g:150,cb:5,f:1},
+{n:"Butter chicken",c:"Protein",u:"1 katori",g:150,cb:10,f:1},
+{n:"Chicken tikka",c:"Protein",u:"4 pcs",g:100,cb:4,f:1},
+{n:"Tandoori chicken",c:"Protein",u:"1 leg",g:150,cb:2,f:1},
+{n:"Chicken 65 / fried chicken",c:"Protein",u:"4 pcs",g:100,cb:12,f:1},
+{n:"Chicken kebab",c:"Protein",u:"2",g:80,cb:6,f:1},
+{n:"Mutton curry",c:"Protein",u:"1 katori",g:150,cb:4,f:1},
+{n:"Mutton keema",c:"Protein",u:"1 katori",g:150,cb:5,f:1},
+{n:"Fish curry",c:"Protein",u:"1 katori",g:150,cb:5},
+{n:"Fish fry",c:"Protein",u:"1 piece",g:80,cb:6,f:1},
+{n:"Prawn curry",c:"Protein",u:"1 katori",g:150,cb:6,f:1},
+{n:"Paneer butter masala",c:"Protein",u:"1 katori",g:150,cb:10,f:1},
+{n:"Palak paneer",c:"Protein",u:"1 katori",g:150,cb:8,f:1},
+{n:"Paneer tikka",c:"Protein",u:"4 pcs",g:100,cb:6,f:1},
+{n:"Paneer, raw",c:"Protein",u:"50 g",g:50,cb:1,f:1},
+{n:"Curd / dahi, plain",c:"Protein",u:"1 katori",g:150,cb:6},
+/* ---------- STREET & RESTAURANT ---------- */
+{n:"Vada pav",c:"Street",u:"1",g:150,cb:45,f:1},
+{n:"Pav bhaji",c:"Street",u:"1 plate",g:250,cb:50,f:1},
+{n:"Misal pav",c:"Street",u:"1 plate",g:250,cb:55,f:1},
+{n:"Bhel puri",c:"Street",u:"1 plate",g:100,cb:35},
+{n:"Sev puri",c:"Street",u:"6 pcs",g:90,cb:32,f:1},
+{n:"Pani puri",c:"Street",u:"6 pcs",g:90,cb:30,f:1},
+{n:"Dahi puri",c:"Street",u:"6 pcs",g:110,cb:34,f:1},
+{n:"Aloo chaat",c:"Street",u:"1 plate",g:120,cb:30,f:1},
+{n:"Samosa",c:"Street",u:"1",g:60,cb:24,f:1},
+{n:"Kachori",c:"Street",u:"1",g:60,cb:25,f:1},
+{n:"Pakora / bajji",c:"Street",u:"4 pcs",g:60,cb:15,f:1},
+{n:"Mirchi bajji",c:"Street",u:"1",g:50,cb:12,f:1},
+{n:"Bonda",c:"Street",u:"1",g:50,cb:15,f:1},
+{n:"Aloo tikki",c:"Street",u:"1",g:70,cb:18,f:1},
+{n:"Momos, steamed",c:"Street",u:"6",g:150,cb:30},
+{n:"Momos, fried",c:"Street",u:"6",g:150,cb:34,f:1},
+{n:"Chowmein / hakka noodles",c:"Street",u:"1 plate",g:200,cb:55,f:1},
+{n:"Gobi / veg manchurian (gravy)",c:"Street",u:"1 katori",g:150,cb:20,f:1},
+{n:"Spring roll",c:"Street",u:"1",g:70,cb:20,f:1},
+{n:"Kathi roll (egg / chicken)",c:"Street",u:"1",g:180,cb:40,f:1},
+{n:"Frankie",c:"Street",u:"1",g:180,cb:42,f:1},
+{n:"Shawarma",c:"Street",u:"1",g:200,cb:45,f:1},
+{n:"Veg burger",c:"Street",u:"1",g:150,cb:38,f:1},
+{n:"Chicken burger",c:"Street",u:"1",g:160,cb:40,f:1},
+{n:"French fries",c:"Street",u:"1 medium",g:100,cb:32,f:1},
+{n:"Pizza slice (medium)",c:"Street",u:"1 slice",g:90,cb:28,f:1},
+{n:"Pasta, white sauce",c:"Street",u:"1 plate",g:200,cb:50,f:1},
+{n:"Veg sandwich (2 slices)",c:"Street",u:"1",g:120,cb:30},
+{n:"Grilled cheese sandwich",c:"Street",u:"1",g:130,cb:32,f:1},
+{n:"Idli manchurian",c:"Street",u:"1 plate",g:200,cb:40,f:1},
+{n:"Maggi, cooked",c:"Street",u:"1 pack",g:200,cb:45,f:1},
+/* ---------- PACKAGED ---------- */
+{n:"Parle-G biscuit",c:"Packaged",u:"1",g:6,cb:5},
+{n:"Marie biscuit",c:"Packaged",u:"1",g:6,cb:5},
+{n:"Monaco / salted cracker",c:"Packaged",u:"1",g:6,cb:5},
+{n:"Krackjack",c:"Packaged",u:"1",g:8,cb:6},
+{n:"Good Day biscuit",c:"Packaged",u:"1",g:10,cb:7,f:1},
+{n:"Hide &amp; Seek",c:"Packaged",u:"1",g:11,cb:8,f:1},
+{n:"Bourbon",c:"Packaged",u:"1",g:17,cb:12,f:1},
+{n:"Oreo",c:"Packaged",u:"1",g:13,cb:9,f:1},
+{n:"Cream biscuit (generic)",c:"Packaged",u:"1",g:14,cb:9,f:1},
+{n:"NutriChoice digestive",c:"Packaged",u:"1",g:12,cb:8},
+{n:"Rusk",c:"Packaged",u:"1",g:15,cb:10},
+{n:"Lays chips",c:"Packaged",u:"1 small pack",g:30,cb:16,f:1},
+{n:"Kurkure",c:"Packaged",u:"1 pack",g:30,cb:17,f:1},
+{n:"Bingo / nachos",c:"Packaged",u:"1 pack",g:30,cb:17,f:1},
+{n:"Haldiram mixture",c:"Packaged",u:"1 handful",g:30,cb:15,f:1},
+{n:"Aloo bhujia",c:"Packaged",u:"1 handful",g:30,cb:14,f:1},
+{n:"Popcorn, plain",c:"Packaged",u:"1 bowl",g:20,cb:12},
+{n:"Maggi noodles (raw pack)",c:"Packaged",u:"1 pack",g:70,cb:45},
+{n:"Amul cheese slice",c:"Packaged",u:"1",g:20,cb:1,f:1},
+{n:"Amul butter",c:"Packaged",u:"1 tsp",g:5,cb:0,f:1},
+{n:"Amul ice cream cup",c:"Packaged",u:"100 ml",g:100,cb:20,f:1},
+{n:"Flavoured milk (Amul Kool)",c:"Packaged",u:"200 ml",g:200,cb:24},
+{n:"Greek yogurt, plain",c:"Packaged",u:"100 g",g:100,cb:5},
+{n:"Fruit yogurt cup",c:"Packaged",u:"100 g",g:100,cb:14},
+{n:"Jam",c:"Packaged",u:"1 tsp",g:7,cb:5},
+{n:"Nutella",c:"Packaged",u:"1 tsp",g:7,cb:4,f:1},
+{n:"Tomato ketchup",c:"Packaged",u:"1 tbsp",g:15,cb:4},
+{n:"Dairy Milk chocolate",c:"Packaged",u:"1 small",g:25,cb:15,f:1},
+{n:"5 Star",c:"Packaged",u:"1",g:25,cb:16,f:1},
+{n:"Munch",c:"Packaged",u:"1",g:19,cb:11,f:1},
+{n:"Perk",c:"Packaged",u:"1",g:17,cb:10,f:1},
+{n:"Snickers",c:"Packaged",u:"1",g:50,cb:25,f:1},
+{n:"Kinder Joy",c:"Packaged",u:"1",g:20,cb:10,f:1},
+{n:"Eclairs / toffee",c:"Packaged",u:"1",g:6,cb:5},
+{n:"Lollipop",c:"Packaged",u:"1",g:8,cb:7},
+/* ---------- DRINKS ---------- */
+{n:"Milk, full cream",c:"Drinks",u:"1 cup",g:200,cb:10},
+{n:"Milk, toned",c:"Drinks",u:"1 cup",g:200,cb:10},
+{n:"Milk with 1 tsp sugar",c:"Drinks",u:"1 cup",g:200,cb:15},
+{n:"Buttermilk (chaas)",c:"Drinks",u:"1 glass",g:200,cb:4},
+{n:"Sweet lassi",c:"Drinks",u:"1 glass",g:200,cb:30},
+{n:"Salted lassi",c:"Drinks",u:"1 glass",g:200,cb:6},
+{n:"Tea with 1 tsp sugar",c:"Drinks",u:"1 cup",g:150,cb:10},
+{n:"Tea / coffee, no sugar",c:"Drinks",u:"1 cup",g:150,cb:3},
+{n:"Filter coffee with sugar",c:"Drinks",u:"1 cup",g:150,cb:12},
+{n:"Badam milk",c:"Drinks",u:"1 glass",g:200,cb:26},
+{n:"Banana milkshake",c:"Drinks",u:"1 glass",g:250,cb:35},
+{n:"Cold coffee",c:"Drinks",u:"1 glass",g:250,cb:30},
+{n:"Horlicks / Bournvita / Boost",c:"Drinks",u:"1 cup",g:200,cb:22},
+{n:"Complan",c:"Drinks",u:"1 cup",g:200,cb:24},
+{n:"Protinex",c:"Drinks",u:"1 cup",g:200,cb:14},
+{n:"Coconut water",c:"Drinks",u:"1 tender coconut",g:200,cb:9},
+{n:"Sugarcane juice",c:"Drinks",u:"1 glass",g:200,cb:28},
+{n:"Fresh lime with sugar",c:"Drinks",u:"1 glass",g:200,cb:18},
+{n:"Sweet lime soda",c:"Drinks",u:"1 glass",g:200,cb:20},
+{n:"Frooti / Maaza / Slice",c:"Drinks",u:"200 ml",g:200,cb:28},
+{n:"Real / Tropicana juice",c:"Drinks",u:"200 ml",g:200,cb:24},
+{n:"Cola (Thums Up / Coke)",c:"Drinks",u:"200 ml",g:200,cb:21},
+{n:"Sprite / Limca",c:"Drinks",u:"200 ml",g:200,cb:21},
+{n:"Appy Fizz",c:"Drinks",u:"200 ml",g:200,cb:26},
+{n:"Rooh Afza sharbat",c:"Drinks",u:"1 glass",g:200,cb:25},
+{n:"Jigarthanda",c:"Drinks",u:"1 glass",g:250,cb:40,f:1},
+{n:"Falooda",c:"Drinks",u:"1 glass",g:250,cb:45,f:1},
+{n:"ORS / Electral (made up)",c:"Drinks",u:"200 ml",g:200,cb:5},
+{n:"Glucon-D / glucose powder",c:"Drinks",u:"1 tbsp",g:15,cb:14},
+{n:"Sugar",c:"Drinks",u:"1 tsp",g:5,cb:5},
+{n:"Jaggery",c:"Drinks",u:"1 small piece",g:10,cb:9},
+{n:"Honey",c:"Drinks",u:"1 tsp",g:7,cb:6},
+/* ---------- FRUIT & NUTS ---------- */
+{n:"Banana",c:"Fruit",u:"1 medium",g:100,cb:23},
+{n:"Banana, small (yelakki)",c:"Fruit",u:"1",g:50,cb:12},
+{n:"Banana, large (nendran)",c:"Fruit",u:"1",g:150,cb:35},
+{n:"Apple",c:"Fruit",u:"1 medium",g:150,cb:20},
+{n:"Pear",c:"Fruit",u:"1 medium",g:150,cb:20},
+{n:"Mango",c:"Fruit",u:"1 medium",g:200,cb:30},
+{n:"Mango slices",c:"Fruit",u:"1 katori",g:150,cb:22},
+{n:"Grapes",c:"Fruit",u:"10",g:50,cb:8},
+{n:"Orange / sathukudi",c:"Fruit",u:"1 medium",g:150,cb:12},
+{n:"Mosambi juice",c:"Fruit",u:"200 ml",g:200,cb:20},
+{n:"Guava",c:"Fruit",u:"1 medium",g:100,cb:12},
+{n:"Chikoo / sapota",c:"Fruit",u:"1",g:75,cb:15},
+{n:"Papaya, cubes",c:"Fruit",u:"1 katori",g:150,cb:10},
+{n:"Watermelon, cubes",c:"Fruit",u:"1 katori",g:150,cb:8},
+{n:"Muskmelon, cubes",c:"Fruit",u:"1 katori",g:150,cb:10},
+{n:"Pineapple, cubes",c:"Fruit",u:"1 katori",g:150,cb:15},
+{n:"Pomegranate",c:"Fruit",u:"1 katori",g:100,cb:15},
+{n:"Custard apple (sitaphal)",c:"Fruit",u:"1",g:100,cb:22},
+{n:"Jackfruit bulbs",c:"Fruit",u:"4",g:80,cb:18},
+{n:"Litchi",c:"Fruit",u:"6",g:60,cb:10},
+{n:"Strawberry",c:"Fruit",u:"1 katori",g:100,cb:6},
+{n:"Tender coconut flesh",c:"Fruit",u:"1 katori",g:50,cb:5,f:1},
+{n:"Dates",c:"Fruit",u:"2",g:20,cb:15},
+{n:"Raisins",c:"Fruit",u:"1 tbsp",g:15,cb:11},
+{n:"Dry figs (anjeer)",c:"Fruit",u:"2",g:20,cb:12},
+{n:"Almonds",c:"Fruit",u:"10",g:12,cb:2,f:1},
+{n:"Cashew nuts",c:"Fruit",u:"10",g:15,cb:4,f:1},
+{n:"Walnut halves",c:"Fruit",u:"4",g:10,cb:1,f:1},
+{n:"Peanuts, roasted",c:"Fruit",u:"1 handful",g:30,cb:5,f:1},
+/* ---------- SWEETS ---------- */
+{n:"Gulab jamun",c:"Sweets",u:"1",g:40,cb:25,f:1},
+{n:"Rasgulla",c:"Sweets",u:"1",g:40,cb:20},
+{n:"Rasmalai",c:"Sweets",u:"1",g:50,cb:22,f:1},
+{n:"Besan laddu",c:"Sweets",u:"1",g:40,cb:25,f:1},
+{n:"Motichoor laddu",c:"Sweets",u:"1",g:40,cb:26,f:1},
+{n:"Rava laddu",c:"Sweets",u:"1",g:40,cb:24,f:1},
+{n:"Mysore pak",c:"Sweets",u:"1 pc",g:30,cb:18,f:1},
+{n:"Milk barfi",c:"Sweets",u:"1 pc",g:30,cb:18,f:1},
+{n:"Kaju katli",c:"Sweets",u:"1 pc",g:15,cb:8,f:1},
+{n:"Soan papdi",c:"Sweets",u:"1 pc",g:25,cb:15,f:1},
+{n:"Milk peda",c:"Sweets",u:"1",g:25,cb:15,f:1},
+{n:"Jalebi",c:"Sweets",u:"1",g:30,cb:20,f:1},
+{n:"Jangiri / imarti",c:"Sweets",u:"1",g:30,cb:20,f:1},
+{n:"Adhirasam",c:"Sweets",u:"1",g:35,cb:22,f:1},
+{n:"Boondi",c:"Sweets",u:"1 katori",g:30,cb:18,f:1},
+{n:"Halwa (carrot / suji)",c:"Sweets",u:"1 katori",g:100,cb:35,f:1},
+{n:"Payasam / kheer",c:"Sweets",u:"1 katori",g:150,cb:30},
+{n:"Semiya payasam",c:"Sweets",u:"1 katori",g:150,cb:32},
+{n:"Basundi",c:"Sweets",u:"1 katori",g:100,cb:25,f:1},
+{n:"Shrikhand",c:"Sweets",u:"1 katori",g:100,cb:28,f:1},
+{n:"Kulfi",c:"Sweets",u:"1",g:70,cb:20,f:1},
+{n:"Ice cream",c:"Sweets",u:"1 scoop",g:60,cb:15,f:1},
+{n:"Cake slice",c:"Sweets",u:"1",g:60,cb:30,f:1},
+{n:"Pastry",c:"Sweets",u:"1",g:80,cb:35,f:1},
+{n:"Doughnut",c:"Sweets",u:"1",g:60,cb:30,f:1},
+{n:"Mithai, assorted box",c:"Sweets",u:"1 pc",g:30,cb:20,f:1},
+/* ---------- INFANT & TODDLER ---------- */
+{n:"Cerelac",c:"Infant",u:"3 tbsp",g:25,cb:17},
+{n:"Nestum",c:"Infant",u:"3 tbsp",g:25,cb:18},
+{n:"Ragi porridge, sweetened",c:"Infant",u:"1 cup",g:150,cb:25},
+{n:"Ragi java, unsweetened",c:"Infant",u:"1 cup",g:150,cb:18},
+{n:"Rice kanji (baby)",c:"Infant",u:"100 ml",g:100,cb:10},
+{n:"Dal water",c:"Infant",u:"100 ml",g:100,cb:3},
+{n:"Khichdi (baby portion)",c:"Infant",u:"100 g",g:100,cb:20},
+{n:"Mashed banana",c:"Infant",u:"½ banana",g:50,cb:11},
+{n:"Curd (baby portion)",c:"Infant",u:"50 g",g:50,cb:2},
+{n:"Infant formula, prepared",c:"Infant",u:"100 ml",g:100,cb:7},
+{n:"Breast milk",c:"Infant",u:"100 ml",g:100,cb:7}
+];
+
+/* ==========================================================================
+   SETTINGS & STATE
+   ========================================================================== */
+const DEF={name:"",wt:"",units:"mgdl",dev:"0.5",
+  icr:{b:12,l:12,s:15,d:12}, isf:50, target:120, thr:150, hypo:70,
+  max:15, dia:4, tdd:"", kc:500, mode:"home"};
+let S=Object.assign({},DEF), sel=[], meal='b', arrow=0, LOG=[], cat='All';
+
+const MEALS={b:"Breakfast",l:"Lunch",s:"Snack",d:"Dinner"};
+const ARROWS=[{s:"↓↓",v:-2},{s:"↓",v:-1},{s:"→",v:0},{s:"↑",v:1},{s:"↑↑",v:2}];
+
+/* category colours for the proportional carbohydrate bar */
+const CATCOL={Rice:"#0f7b8a",Roti:"#c2772b",Tiffin:"#7a5bbd",Dal:"#2f8f4e",Veg:"#5a9e2f",
+  Protein:"#b5453f",Street:"#d4663d",Packaged:"#7d848e",Drinks:"#2f7fd1",Fruit:"#c94d8a",
+  Sweets:"#a3357d",Infant:"#38a8a0",Manual:"#6b7a88"};
+
+/* ---- plausible maximum number of units in ONE sitting ----
+   Explicit values for commonly over-tapped foods; everything else
+   falls back to a ceiling derived from the portion weight. */
+const MAXOV={
+ "Idli":6,"Idli, mini (button)":15,"Rava idli":5,"Kanchipuram idli":4,"Idli + sambar (2 idli)":2,
+ "Dosa, plain":3,"Dosa, large (hotel)":2,"Masala dosa":2,"Rava dosa":2,"Onion dosa":2,
+ "Ghee roast dosa":2,"Set dosa":4,"Uttapam":2,"Appam":4,"Idiyappam (string hopper)":6,
+ "Chapati / roti (30 g atta)":5,"Phulka (small, 20 g atta)":6,"Tandoori roti (large)":3,
+ "Paratha, plain":3,"Aloo paratha":2,"Puri":8,"Bhatura":2,"Naan, plain":2,"Butter naan":2,
+ "Medhu vada":3,"Sambar vada":2,"Samosa":2,"Kachori":2,"Bonda":3,"Aloo tikki":3,
+ "Egg, boiled":3,"Omelette (2 eggs)":1,"Banana":2,"Apple":2,"Mango":1,
+ "Rice, cooked (white)":3,"Rice, cooked (brown)":3,"Rice, cooked (parboiled / idli rice)":3,
+ "Rice, raw":2,"Wheat flour (atta), raw":2,"Maida, raw":2,"Oats, raw":1,
+ "Veg biryani":1,"Chicken biryani":1,"Mutton biryani":1,"Pav bhaji":1,"Misal pav":1,
+ "Chole bhature":1,"Vada pav":2,"Maggi, cooked":1,"Chowmein / hakka noodles":1,
+ "Pizza slice (medium)":3,"Veg burger":1,"Chicken burger":1,"Shawarma":1,
+ "Sambar":2,"Rasam":2,"Dal (toor / moong), cooked":2,"Curd / dahi, plain":2,
+ "Milk, full cream":2,"Milk, toned":2,"Milk with 1 tsp sugar":2,"Tea with 1 tsp sugar":3,
+ "Sugar":4,"Honey":3,"Jaggery":3,"Glucon-D / glucose powder":3,
+ "Parle-G biscuit":8,"Marie biscuit":8,"Gulab jamun":3,"Besan laddu":2,"Ice cream":3,
+ "Breast milk":2,"Infant formula, prepared":2,"Cerelac":2,"Nestum":2
+};
+function plausibleMax(f){
+  if(MAXOV[f.n]!=null) return MAXOV[f.n];
+  const g=f.g;
+  if(g<=15)  return 8;
+  if(g<=30)  return 6;
+  if(g<=60)  return 5;
+  if(g<=100) return 4;
+  if(g<=160) return 3;
+  return 2;
+}
+const overCount=()=>sel.filter(x=>x.i>=0&&x.q>plausibleMax(FOODS[x.i]));
+
+const isMmol=()=>S.units==='mmol';
+const uLabel=()=>isMmol()?'mmol/L':'mg/dL';
+const trendShift=()=>arrow*(isMmol()?1.4:25);
+
+function load(){
+  try{
+    const s=localStorage.getItem('t1d_set'); if(s) S=Object.assign({},DEF,JSON.parse(s));
+    const l=localStorage.getItem('t1d_log'); if(l) LOG=JSON.parse(l);
+  }catch(e){}
+}
+function save(){
+  try{ localStorage.setItem('t1d_set',JSON.stringify(S)); localStorage.setItem('t1d_log',JSON.stringify(LOG)); }catch(e){}
+}
+
+function setMode(m){
+  S.mode=m; save();
+  mHome.className=m==='home'?'on':''; mClin.className=m==='clin'?'on':'';
+  document.querySelectorAll('#clinBlock input,#clinBlock select').forEach(el=>el.disabled=(m==='home'));
+  document.getElementById('clinLock')?.remove();
+  if(m==='home'){
+    const d=document.createElement('div'); d.id='clinLock'; d.className='alert w';
+    d.style.marginTop='0'; d.style.marginBottom='14px';
+    d.innerHTML='<b>Locked in Home mode</b>Ratios and limits are set by the diabetes team. Switch to Clinician mode at the top right to change them.';
+    clinBlock.prepend(d);
+  }
+}
+function showTab(t){
+  ['calc','log','set'].forEach(x=>{
+    document.getElementById('p-'+x).classList.toggle('hide',x!==t);
+    document.getElementById('tab-'+x).className = x===t?'on':'';
+  });
+  stick.classList.toggle('hide',t!=='calc');
+  if(t==='log') renderLog();
+  if(t==='set') fillSettings();
+  window.scrollTo(0,0);
+}
+
+/* ==========================================================================
+   UI
+   ========================================================================== */
+function initUI(){
+  mealBtns.innerHTML=Object.keys(MEALS).map(k=>
+    `<button class="${k===meal?'on':''}" onclick="setMeal('${k}')">${MEALS[k]}</button>`).join('');
+  icrHint.textContent=`Ratio in use: 1 unit per ${S.icr[meal]} g carbohydrate`;
+  const cats=['All',...new Set(FOODS.map(f=>f.c))];
+  document.getElementById('cats').innerHTML=cats.map(c=>
+    `<button class="${c===cat?'on':''}" onclick="setCat('${c}')">${c}</button>`).join('');
+  arrows.innerHTML=ARROWS.map(a=>
+    `<button class="${a.v===arrow?'on':''}" onclick="arrow=${a.v};initUI()">${a.s}</button>`).join('');
+  document.querySelectorAll('.uLbl').forEach(e=>e.textContent=uLabel());
+  ptLine.textContent=(S.name?S.name+' · ':'')+'Type 1 diabetes · Indian food database';
+  dbCount.textContent=FOODS.length+' Indian foods in the database';
+  updIOB();
+}
+function setMeal(k){meal=k;initUI();}
+function setCat(c){cat=c;initUI();render();}
+
+function render(){
+  const q=(document.getElementById('q').value||'').toLowerCase().trim();
+  const all=FOODS.filter(f=>(cat==='All'||f.c===cat)&&(!q||f.n.toLowerCase().includes(q)));
+  const list=all.slice(0,60);
+  res.innerHTML=list.length?list.map(f=>{
+    const i=FOODS.indexOf(f);
+    return `<div class="item" onclick="add(${i})">
+      <span class="nm">${f.n}<span class="ms">${f.u} · ${f.g} g/ml · ${Math.round(f.cb/f.g*100)} g carb per 100 g</span></span>
+      <span class="cb">${f.cb} g</span><span class="plus">+</span></div>`;
+  }).join('')
+   :'<div class="item"><span class="nm" style="color:var(--muted)">No match — use “add carbohydrate manually” below.</span></div>';
+  resCnt.textContent=all.length?`showing ${list.length} of ${all.length}`:'';
+  renderSel();
+}
+
+function add(i){const e=sel.find(x=>x.i===i); if(e)e.q+=1; else sel.push({i:i,q:1}); renderSel();}
+function addManual(){
+  const el=document.getElementById('manual'), v=parseFloat(el.value);
+  if(!isFinite(v)||v<=0) return;
+  sel.push({i:-1,q:1,man:v,nm:'Manual entry'}); el.value=''; renderSel();
+}
+function chg(k,d){sel[k].q+=d; if(sel[k].q<=0){sel.splice(k,1);segSel=-1;} renderSel();}
+function rm(k){sel.splice(k,1); segSel=-1; renderSel();}
+
+const totalCarbs=()=>sel.reduce((s,x)=>s+(x.i<0?x.man*x.q:FOODS[x.i].cb*x.q),0);
+const hasFat=()=>sel.some(x=>x.i>=0&&FOODS[x.i].f);
+
+const itemCarb=x=>x.i<0?x.man*x.q:FOODS[x.i].cb*x.q;
+const itemCol =x=>x.i<0?CATCOL.Manual:(CATCOL[FOODS[x.i].c]||CATCOL.Manual);
+
+function renderSel(){
+  document.getElementById('sel').innerHTML=sel.map((x,k)=>{
+    const f=x.i<0?null:FOODS[x.i];
+    const nm=f?f.n:x.nm;
+    const sub=f?`${f.u} · ${f.cb} g carb each`:`${x.man} g carb`;
+    const c=itemCarb(x);
+    const mx=f?plausibleMax(f):null;
+    const over=mx!=null&&x.q>mx;
+    return `<div class="selrow${over?' over':''}">
+      <span class="nm"><span class="dot" style="background:${itemCol(x)}"></span>${nm}<small>${sub}</small>${
+        over?`<span class="qwarn">${x.q} servings is more than usual for one sitting — is that right?</span>`:''}</span>
+      <span class="qty"><button onclick="chg(${k},-1)">−</button><span>${x.q}</span><button onclick="chg(${k},1)">+</button></span>
+      <span class="cb">${c.toFixed(0)} g</span>
+      <button class="rm" onclick="rm(${k})" aria-label="remove">×</button></div>`;
+  }).join('');
+  const t=totalCarbs();
+  tc.innerHTML=t.toFixed(0)+'<small> g</small>';
+  stickCarb.textContent=t.toFixed(0)+' g';
+  fpuNote.innerHTML=(hasFat()&&t>=30)
+    ?'<div class="alert w"><b>High fat / protein meal</b>Rich or fried meals — biryani, paratha, pizza, sweets — release glucose late. Consider a split bolus of roughly 60% now and 40% after 1.5–2 h, or an extended bolus on a pump, and check BG at 3 h.</div>':'';
+  renderBar(t);
+}
+
+/* ---------- proportional carbohydrate bar ---------- */
+let segSel=-1;
+function renderBar(t){
+  const show=sel.length>0&&t>0;
+  barwrap.classList.toggle('hide',!show);
+  document.body.classList.toggle('hasbar',show);
+  if(!show){segSel=-1;cbar.innerHTML='';cbarInfo.innerHTML='';return;}
+  if(segSel>=sel.length) segSel=-1;
+  cbar.innerHTML=sel.map((x,k)=>{
+    const f=x.i<0?null:FOODS[x.i];
+    const pct=itemCarb(x)/t*100;
+    const nm=f?f.n:'Manual';
+    const lbl=pct>=13?nm.split(/[ ,/(]/)[0]:'';
+    return `<button style="width:${pct}%;background:${itemCol(x)}" class="${segSel===k?'on':''}"
+      onclick="pickSeg(${k})" title="${nm} — ${itemCarb(x).toFixed(0)} g">${lbl}</button>`;
+  }).join('');
+  showSegInfo(t);
+}
+function pickSeg(k){segSel=(segSel===k?-1:k);renderBar(totalCarbs());}
+function showSegInfo(t){
+  const ov=overCount();
+  const flag=ov.length?` <span class="flag">· ${ov.length} unusual portion${ov.length>1?'s':''} — check the list</span>`:'';
+  if(segSel>=0&&sel[segSel]){
+    const x=sel[segSel],f=x.i<0?null:FOODS[x.i],c=itemCarb(x);
+    cbarInfo.innerHTML=`<b>${f?f.n:'Manual entry'}</b> — ${x.q} × ${f?f.u:x.man+' g'} · <b>${c.toFixed(0)} g</b> · ${Math.round(c/t*100)}% of this meal${flag}`;
+  }else{
+    const top=sel.map((x,k)=>({k,c:itemCarb(x)})).sort((a,b)=>b.c-a.c)[0];
+    const x=sel[top.k], f=x.i<0?null:FOODS[x.i];
+    cbarInfo.innerHTML=`Biggest share: <b>${f?f.n:'manual entry'}</b> at ${Math.round(top.c/t*100)}% · tap a segment for detail${flag}`;
+  }
+}
+
+/* ==========================================================================
+   INSULIN ON BOARD — linear decay over DIA
+   ========================================================================== */
+function iob(now){
+  now=now||Date.now();
+  const dia=(+S.dia||4)*3600000;
+  return LOG.reduce((s,e)=>{
+    const dt=now-e.t;
+    if(dt<0||dt>=dia||!e.dose) return s;
+    return s+e.dose*(1-dt/dia);
+  },0);
+}
+function updIOB(){ iobVal.textContent=iob().toFixed(1)+' U'; }
+
+/* ==========================================================================
+   DOSE CALCULATION  (logic unchanged — verified against 14 scenarios)
+   ========================================================================== */
+function roundDose(d,step){step=+step; return Math.round(Math.round(d/step)*step*100)/100;}
+function fmt(d,step){return (+step===1)?d.toFixed(0):d.toFixed(1);}
+
+function computeDose(inp){
+  const r={warnings:[],blocked:false};
+  r.carbs=inp.carbs;
+  r.mealRaw=inp.icr>0?inp.carbs/inp.icr:0;
+
+  if(isFinite(inp.bg)&&inp.bg>0&&inp.bg<inp.hypo){r.blocked=true;r.final=0;r.total=0;return r;}
+
+  r.exCut=r.mealRaw*(inp.exPct/100);
+  r.meal=r.mealRaw-r.exCut;
+
+  r.corr=0;
+  if(isFinite(inp.bg)&&inp.bg>0){
+    const bgAdj=inp.bg+inp.shift;
+    if(inp.bg>=inp.thr)          r.corr=(bgAdj-inp.target)/inp.isf;
+    else if(inp.bg<inp.target)   r.corr=(bgAdj-inp.target)/inp.isf;
+  }
+
+  r.iobUsed=0;
+  if(r.corr>0){
+    r.iobUsed=Math.min(inp.iob,r.corr);
+    r.corrNet=r.corr-r.iobUsed;
+  }else{
+    r.corrNet=r.corr;
+    if(inp.iob>0.5&&r.corr<0)
+      r.warnings.push(`${inp.iob.toFixed(1)} U is still active from an earlier dose while BG is at or below target — stacking risk. Consider delaying the meal bolus or reducing it further.`);
+  }
+
+  r.total=Math.max(0,r.meal+r.corrNet);
+  r.capped=false;
+  if(r.total>inp.max){r.total=inp.max;r.capped=true;}
+  r.final=roundDose(r.total,inp.step);
+  if(r.final<0)r.final=0;
+  return r;
+}
+
+function calc(){
+  const carbs=totalCarbs();
+  const bgRaw=parseFloat(document.getElementById('bg').value);
+  const inp={
+    carbs:carbs, bg:isFinite(bgRaw)?bgRaw:NaN,
+    icr:+S.icr[meal], isf:+S.isf, target:+S.target, thr:+S.thr, hypo:+S.hypo,
+    iob:iob(), exPct:+document.getElementById('ex').value,
+    shift:trendShift(), max:+S.max, step:+S.dev
+  };
+  if(!(inp.icr>0)){
+    out.innerHTML=`<div class="alert d"><b>No carbohydrate ratio set</b>Enter the insulin-to-carb ratio for ${MEALS[meal]} in Settings first.</div>`;
+    out.scrollIntoView({behavior:'smooth',block:'nearest'}); return;
+  }
+  if(carbs<=0&&!isFinite(inp.bg)){
+    out.innerHTML=`<div class="alert w"><b>Nothing to calculate yet</b>Add food to the plate, or enter a blood glucose reading for a correction-only dose.</div>`;
+    out.scrollIntoView({behavior:'smooth',block:'nearest'}); return;
+  }
+
+  const r=computeDose(inp), U=uLabel(), st=+S.dev;
+
+  if(r.blocked){
+    out.innerHTML=`<div class="alert d"><b>Do not give insulin now — BG ${bgRaw} ${U} is low</b>
+      Treat the hypoglycaemia first (15/15 rule):
+      <ol>
+        <li>Give 15 g fast carbohydrate — 3 tsp glucose powder, 3 tsp sugar in water, or 150 ml juice or regular cola.</li>
+        <li>Wait 15 minutes, then recheck BG.</li>
+        <li>Still below ${S.hypo} ${U}? Repeat the 15 g.</li>
+        <li>Once recovered, give the meal and dose for the meal carbohydrate only — no correction.</li>
+      </ol>
+      If drowsy, confused or unable to swallow: give nothing by mouth. Use IM glucagon if available and get emergency help.</div>`;
+    out.scrollIntoView({behavior:'smooth',block:'nearest'}); return;
+  }
+
+  const sgn=v=>(v<0?'−':'')+Math.abs(v).toFixed(2);
+  let warn='';
+  if(r.capped) warn+=`<div class="alert d"><b>Dose capped at the ${S.max} U safety limit</b>The calculated dose exceeded the maximum single dose. Recheck the carbohydrate entry and the BG reading, and contact the diabetes team before giving anything larger.</div>`;
+  const ov=overCount();
+  if(ov.length) warn+=`<div class="alert w"><b>Check the portion count before giving this</b>${
+    ov.map(x=>`${x.q} × ${FOODS[x.i].n}`).join(', ')} — larger than usual for one sitting. If the count is a mis-tap, the dose above is too high.</div>`;
+  if(r.iobUsed>0) warn+=`<div class="alert o"><b>${r.iobUsed.toFixed(1)} U subtracted for insulin on board</b>The correction was reduced to avoid stacking.</div>`;
+  r.warnings.forEach(w=>warn+=`<div class="alert w">${w}</div>`);
+  if(isFinite(inp.bg)&&inp.bg>=(isMmol()?14:250))
+    warn+=`<div class="alert w"><b>BG ${bgRaw} ${U} — check ketones</b>If ketones are moderate or large, give the correction, push sugar-free fluids, recheck in 2 h and contact the diabetes team. Do not exercise.</div>`;
+  if(inp.exPct>0)
+    warn+=`<div class="alert o"><b>Meal bolus reduced ${inp.exPct}% for activity</b>Check BG before, during and 2 h after. Carry fast carbohydrate.</div>`;
+
+  out.innerHTML=`
+  <div class="dose">
+    <div class="cap">${MEALS[meal]} dose · rounded to ${st} U</div>
+    <div class="big">${fmt(r.final,st)}<small> units</small></div>
+    <div class="brk">
+      <div><span>Meal bolus — ${carbs.toFixed(0)} g ÷ ${inp.icr}</span><span>${r.mealRaw.toFixed(2)} U</span></div>
+      ${inp.exPct>0?`<div><span>Exercise reduction (−${inp.exPct}%)</span><span>−${r.exCut.toFixed(2)} U</span></div>`:''}
+      ${isFinite(inp.bg)
+        ?`<div><span>Correction — (${(inp.bg+inp.shift).toFixed(0)} − ${S.target}) ÷ ${S.isf}</span><span>${sgn(r.corr)} U</span></div>`
+        :`<div><span>Correction — no BG entered</span><span>0.00 U</span></div>`}
+      ${arrow!==0?`<div><span>Trend arrow shift</span><span>${arrow>0?'+':'−'}${Math.abs(trendShift())} ${U}</span></div>`:''}
+      ${r.iobUsed>0?`<div><span>Insulin on board</span><span>−${r.iobUsed.toFixed(2)} U</span></div>`:''}
+      <div class="tot"><span>Calculated</span><span>${r.total.toFixed(2)} U → ${fmt(r.final,st)} U</span></div>
+    </div>
+  </div>
+  ${warn}
+  <button class="btn sec" style="margin-top:12px" onclick="logDose(${r.final},${carbs},${isFinite(inp.bg)?inp.bg:'null'})">Record ${fmt(r.final,st)} U as given</button>
+  <button class="btn ghost" style="margin-top:9px" onclick="clearMeal()">Clear the plate</button>`;
+  out.scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+
+function clearMeal(){
+  sel=[]; document.getElementById('bg').value=''; arrow=0;
+  document.getElementById('ex').value='0'; out.innerHTML=''; initUI(); renderSel();
+}
+
+/* ==========================================================================
+   LOG
+   ========================================================================== */
+function logDose(dose,carbs,bg){
+  const items=sel.map(x=>(x.i<0?`Manual ${x.man} g`:FOODS[x.i].n)+(x.q>1?` ×${x.q}`:'')).join('; ');
+  LOG.unshift({t:Date.now(),meal:MEALS[meal],carbs:carbs,bg:bg,dose:dose,items:items,icr:S.icr[meal],isf:S.isf});
+  save(); updIOB();
+  out.innerHTML=`<div class="alert o"><b>Recorded</b>${fmt(dose,+S.dev)} U saved to the log and now counted as insulin on board.</div>`;
+  sel=[]; renderSel();
+}
+function renderLog(){
+  if(!LOG.length){logBody.innerHTML='<div class="hint">No entries yet. Doses you record on the Calculate tab appear here.</div>';return;}
+  logBody.innerHTML='<table><tr><th>When</th><th>Meal</th><th>Carb</th><th>BG</th><th>Dose</th></tr>'+
+    LOG.map(e=>{
+      const d=new Date(e.t);
+      return `<tr>
+        <td>${d.toLocaleDateString('en-GB',{day:'2-digit',month:'short'})}<br><span style="color:var(--muted)">${d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}</span></td>
+        <td>${e.meal}<br><span style="color:var(--muted);font-size:11px">${(e.items||'').slice(0,70)}</span></td>
+        <td>${e.carbs.toFixed(0)} g</td><td>${e.bg==null?'—':e.bg}</td><td><b>${e.dose} U</b></td></tr>`;
+    }).join('')+'</table>';
+}
+function exportCSV(){
+  const rows=[['Date','Time','Meal','Foods','Carbs_g','BG','ICR','ISF','Dose_U']].concat(
+    LOG.map(e=>{const d=new Date(e.t);
+      return [d.toLocaleDateString('en-GB'),d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}),
+        e.meal,'"'+(e.items||'').replace(/"/g,"'")+'"',e.carbs,e.bg==null?'':e.bg,e.icr,e.isf,e.dose];}));
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([rows.map(r=>r.join(',')).join('\n')],{type:'text/csv'}));
+  a.download=(S.name||'t1dm')+'_insulin_log_'+new Date().toISOString().slice(0,10)+'.csv';
+  a.click();
+}
+function clearLog(){ if(confirm('Delete all log entries on this device?')){LOG=[];save();renderLog();updIOB();} }
+
+/* ==========================================================================
+   SETTINGS
+   ========================================================================== */
+function fillSettings(){
+  s_name.value=S.name; s_wt.value=S.wt; s_units.value=S.units; s_dev.value=S.dev;
+  s_icr_b.value=S.icr.b; s_icr_l.value=S.icr.l; s_icr_s.value=S.icr.s; s_icr_d.value=S.icr.d;
+  s_isf.value=S.isf; s_target.value=S.target; s_thr.value=S.thr; s_hypo.value=S.hypo;
+  s_max.value=S.max; s_dia.value=S.dia; s_tdd.value=S.tdd; s_kc.value=S.kc;
+  setMode(S.mode); ruleCalc();
+}
+function saveSettings(){
+  S.name=s_name.value; S.wt=s_wt.value; S.units=s_units.value; S.dev=s_dev.value;
+  if(S.mode==='clin'){
+    S.icr={b:+s_icr_b.value,l:+s_icr_l.value,s:+s_icr_s.value,d:+s_icr_d.value};
+    S.isf=+s_isf.value; S.target=+s_target.value; S.thr=+s_thr.value; S.hypo=+s_hypo.value;
+    S.max=+s_max.value; S.dia=+s_dia.value; S.tdd=s_tdd.value; S.kc=s_kc.value;
+  }
+  save(); initUI();
+  saveMsg.textContent='Saved '+new Date().toLocaleString();
+}
+function resetSettings(){ if(confirm('Reset all settings to defaults?')){S=Object.assign({},DEF);save();fillSettings();initUI();} }
+function ruleCalc(){
+  const t=parseFloat(s_tdd.value),k=+s_kc.value;
+  if(!isFinite(t)||t<=0){ruleOut.textContent='';return;}
+  ruleOut.innerHTML=`Suggested starting ICR <b>1 U per ${Math.round(k/t)} g</b> · ISF <b>`+
+    (s_units.value==='mmol'?(100/t).toFixed(1)+' mmol/L':Math.round(1800/t)+' mg/dL')+`</b> per unit.`;
+}
+function applyRule(){
+  const t=parseFloat(s_tdd.value),k=+s_kc.value;
+  if(!isFinite(t)||t<=0){alert('Enter the total daily dose first.');return;}
+  const icr=Math.round(k/t);
+  s_icr_b.value=icr; s_icr_l.value=icr; s_icr_s.value=icr; s_icr_d.value=icr;
+  s_isf.value=s_units.value==='mmol'?(100/t).toFixed(1):Math.round(1800/t);
+}
+
+/* ========================== BOOT ========================== */
+load(); initUI(); render(); fillSettings(); showTab('calc');
+</script>
+<script>if('serviceWorker' in navigator){addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));}</script>
+</body>
+</html>

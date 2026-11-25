@@ -1,0 +1,11 @@
+{
+  "name": "Carb Companion",
+  "short_name": "Carb Companion",
+  "description": "Carb counter and insulin dose calculator for Indian foods — type 1 diabetes. Decision support only.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f1f5f8",
+  "theme_color": "#0f7b8a",
+  "icons": [{ "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }]
+}
